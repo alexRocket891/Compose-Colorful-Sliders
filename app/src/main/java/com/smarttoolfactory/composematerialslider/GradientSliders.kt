@@ -1,4 +1,4 @@
-package com.smarttoolfactory.composematerialslider.demo
+package com.smarttoolfactory.composematerialslider
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.Box
@@ -387,7 +387,7 @@ fun CheckeredColorfulSlider(
             coerceThumbInTrack = true,
             colors = MaterialSliderDefaults.materialColors(
                 activeTrackColor = SliderBrushColor(brush = brush),
-                inactiveTickColor = SliderBrushColor(color = ActiveTrackColor.copy(.24f))
+                inactiveTrackColor = SliderBrushColor(color = Color.Transparent)
             ),
             drawInactiveTrack = false
         )

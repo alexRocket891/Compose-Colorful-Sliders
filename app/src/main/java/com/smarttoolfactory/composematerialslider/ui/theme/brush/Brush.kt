@@ -4,9 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
-import com.smarttoolfactory.composematerialslider.ui.theme.goldColors
-import com.smarttoolfactory.composematerialslider.ui.theme.silverColors2
-import com.smarttoolfactory.composematerialslider.ui.theme.sunsetColors
+import com.smarttoolfactory.composematerialslider.ui.theme.*
 
 fun goldGradient(): Brush {
     return Brush.linearGradient(colors = goldColors)
@@ -31,4 +29,12 @@ fun sugarGradient(): Brush {
 
 fun sunsetGradient(): Brush {
     return Brush.linearGradient(colors = sunsetColors)
+}
+
+fun sunriseGradient(): Brush {
+    return Brush.linearGradient(colors = sunriseColors)
+}
+
+fun instaGradient(): Brush {
+    return Brush.linearGradient(colors = instaColors)
 }

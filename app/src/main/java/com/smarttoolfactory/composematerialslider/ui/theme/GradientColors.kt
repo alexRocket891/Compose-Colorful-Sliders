@@ -58,15 +58,16 @@ val silverColors = listOf(
     Color(0xffC0C0C0),
     Color(0xffA9A9A9),
     Color(0xffFFFFFF),
-    Color(0xff808080),
+    Color(0xffC0C0C0)
 )
+
 val silverColors2 = listOf(
     Color(0xffC0C0C0),
     Color(0xffCFCFCF),
     Color(0xffDDDDDD),
     Color(0xffCFCFCF),
     Color(0xff808080),
-    )
+)
 val goldColors = listOf(
     Color(0xffBF953F),
     Color(0xffFCF6BA),
@@ -84,4 +85,24 @@ val sunsetColors = listOf(
     Color(0xff9BA5AE),
     Color(0xff3E5879),
     Color(0xff020B1A)
+)
+
+val sunriseColors = listOf(
+    Color(0xff58151A),
+    Color(0xffBC2909),
+    Color(0xffBA6D09),
+    Color(0xff71A8EE),
+    Color(0xff3072EB),
+    Color(0xff9BA5AE),
+    Color(0xff1552C6),
+    Color(0xff0542A8)
+)
+
+val instaColors = listOf(
+    Color(0xff405de6),
+    Color(0xff5851db),
+    Color(0xff833ab4),
+    Color(0xffc13584),
+    Color(0xffe1306c),
+    Color(0xfffd1d1d),
 )
