@@ -13,10 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.*
-import com.smarttoolfactory.composematerialslider.demo.ColorfulSliderDemo
-import com.smarttoolfactory.composematerialslider.demo.SliderGradientDemo
-import com.smarttoolfactory.composematerialslider.demo.SliderGradientDemo2
-import com.smarttoolfactory.composematerialslider.demo.SliderPropertiesDemo
+import com.smarttoolfactory.composematerialslider.demo.*
 import com.smarttoolfactory.composematerialslider.ui.theme.ComposeMaterialSliderTheme
 import kotlinx.coroutines.launch
 
@@ -81,9 +78,10 @@ private fun HomeContent() {
 
         when (page) {
             0 -> ColorfulSliderDemo()
-            1 -> SliderGradientDemo()
-            2 -> SliderGradientDemo2()
-            else -> SliderPropertiesDemo()
+            1 -> SliderPropertiesDemo()
+            2 -> SliderWithLabelDemo()
+            3 -> SliderGradientDemo()
+            else -> SliderGradientDemo2()
         }
     }
 }
@@ -91,8 +89,9 @@ private fun HomeContent() {
 internal val tabList =
     listOf(
         "Slider Dimensions",
+        "Slider Properties",
+        "Slider with Label",
         "Slider Gradients1",
         "Slider Gradients2",
-        "Slider Properties",
     )
 

@@ -151,49 +151,6 @@ fun ColorfulSliderDemo() {
             )
         )
 
-        TitleText("Solid Border")
-        var progress4 by remember { mutableStateOf(0f) }
-        ColorfulSlider(
-            value = progress4,
-            thumbRadius = 10.dp,
-            trackHeight = 12.dp,
-            onValueChange = { value ->
-                progress4 = value
-            },
-            colors = MaterialSliderDefaults.materialColors(
-                activeTrackColor = SliderBrushColor(color = Color.Black),
-                inactiveTrackColor = SliderBrushColor(color = Color.Transparent)
-            ),
-            borderStroke = BorderStroke(1.dp, Color.Black)
-        )
-
-        ColorfulSlider(
-            value = progress4,
-            thumbRadius = 12.dp,
-            trackHeight = 14.dp,
-            onValueChange = { value ->
-                progress4 = value
-            },
-            colors = MaterialSliderDefaults.materialColors(
-                activeTrackColor = SliderBrushColor(color = Red400),
-                inactiveTrackColor = SliderBrushColor(color = Color.Transparent)
-            ),
-            borderStroke = BorderStroke(1.dp, Red400)
-        )
-
-        ColorfulSlider(
-            value = progress4,
-            thumbRadius = 10.dp,
-            trackHeight = 14.dp,
-            onValueChange = { value ->
-                progress4 = value
-            },
-            colors = MaterialSliderDefaults.materialColors(
-                activeTrackColor = SliderBrushColor(color = Blue400),
-                inactiveTrackColor = SliderBrushColor(color = Color.Transparent)
-            ),
-            borderStroke = BorderStroke(1.dp, Blue400)
-        )
 
 //        ColorfulIconSlider(
 //            modifier = Modifier.width(240.dp),
@@ -218,6 +175,6 @@ fun TitleText(text: String) {
         color = Blue400,
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(2.dp)
+        modifier = Modifier.padding(horizontal=4.dp, vertical = 8.dp)
     )
 }
