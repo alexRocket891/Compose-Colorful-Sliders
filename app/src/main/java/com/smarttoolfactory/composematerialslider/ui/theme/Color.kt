@@ -7,6 +7,9 @@ val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 
+val BlueSmart = Color(0xff29b6f6)
+val BlueSmartDark = Color(0xff03a9f4)
+
 val Orange400 = Color(0xffFFA726)
 val Blue400 = Color(0xff42A5F5)
 val Pink400 = Color(0xffEC407A)

@@ -1,34 +1,125 @@
 package com.smarttoolfactory.slider
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PointMode
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.input.pointer.consumePositionChange
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import com.smarttoolfactory.slider.gesture.pointerMotionEvents
 
+/**
+ * Material Slider allows to choose height for track and thumb radius and selection between
+ * [Color] or [Brush] using [SliderBrushColor]. If brush of [SliderBrushColor.brush] is
+ * not null gradient
+ * provided in this [Brush] is used for drawing otherwise solid color
+ * [SliderBrushColor.solidColor] is used and Thumb as Icon, emoji or any desired Composable.
+ *
+ * @param value current value of the Slider. If outside of [valueRange] provided, value will be
+ * coerced to this range.
+ * @param onValueChange lambda that returns value.
+ * @param modifier modifiers for the Slider layout.
+ * @param enabled whether or not component is enabled and can be interacted with or not
+ * @param valueRange range of values that Slider value can take. Passed [value] will be coerced to
+ * this range
+ * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
+ * between across the whole value range. If 0, slider will behave as a continuous slider and allow
+ * to choose any value from the range specified. Must not be negative.
+ * @param trackHeight height of the track that will be drawn on [Canvas]. half of [trackHeight]
+ * is used as **stroke** width.
+ * @param thumb thumb of the the slider
+ * @param colors [MaterialSliderColors] that will be used to determine the color of the Slider parts in
+ * different state. See [MaterialSliderDefaults.defaultColors],
+ * [MaterialSliderDefaults.customColors] or other functions to customize.
+ * @param borderStroke draws border around the track with given width in dp.
+ * @param drawInactiveTrack flag to draw **InActive** track between active progress and track end.
+ * @param coerceThumbInTrack when set to true track's start position is matched to thumbs left
+ * on start and thumbs right at the end of the track. Use this when [trackHeight] is bigger than
+ * [thumb].
+ */
+@Composable
+fun ColorfulIconSlider(
+    modifier: Modifier = Modifier,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    enabled: Boolean = true,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int = 0,
+    onValueChangeFinished: (() -> Unit)? = null,
+    trackHeight: Dp = TrackHeight,
+    colors: MaterialSliderColors = MaterialSliderDefaults.defaultColors(),
+    borderStroke: BorderStroke? = null,
+    drawInactiveTrack: Boolean = true,
+    coerceThumbInTrack: Boolean = false,
+    thumb: @Composable () -> Unit
+) {
+    ColorfulIconSlider(
+        modifier = modifier,
+        value = value,
+        onValueChange = { progress, _ ->
+            onValueChange(progress)
+        },
+        enabled = enabled,
+        valueRange = valueRange,
+        steps = steps,
+        onValueChangeFinished = onValueChangeFinished,
+        trackHeight = trackHeight,
+        colors = colors,
+        borderStroke = borderStroke,
+        drawInactiveTrack = drawInactiveTrack,
+        coerceThumbInTrack = coerceThumbInTrack,
+        thumb = thumb
+    )
+}
+
+/**
+ * Material Slider allows to choose height for track and thumb radius and selection between
+ * [Color] or [Brush] using [SliderBrushColor]. If brush of [SliderBrushColor.brush] is
+ * not null gradient
+ * provided in this [Brush] is used for drawing otherwise solid color
+ * [SliderBrushColor.solidColor] is used and Thumb as Icon, emoji or any desired Composable.
+ *
+ * @param value current value of the Slider. If outside of [valueRange] provided, value will be
+ * coerced to this range.
+ * @param onValueChange lambda that returns value, position of **thumb** as [Offset], vertical
+ * center is stored in y.
+ * @param modifier modifiers for the Slider layout
+ * @param enabled whether or not component is enabled and can be interacted with or not
+ * @param valueRange range of values that Slider value can take. Passed [value] will be coerced to
+ * this range
+ * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
+ * between across the whole value range. If 0, slider will behave as a continuous slider and allow
+ * to choose any value from the range specified. Must not be negative.
+ * @param trackHeight height of the track that will be drawn on [Canvas]. half of [trackHeight]
+ * is used as **stroke** width.
+ * @param thumb thumb of the the slider
+ * @param colors [MaterialSliderColors] that will be used to determine the color of the Slider parts in
+ * different state. See [MaterialSliderDefaults.defaultColors],
+ * [MaterialSliderDefaults.customColors] or other functions to customize.
+ * @param borderStroke draws border around the track with given width in dp.
+ * @param drawInactiveTrack flag to draw **InActive** track between active progress and track end.
+ * @param coerceThumbInTrack when set to true track's start position is matched to thumbs left
+ * on start and thumbs right at the end of the track. Use this when [trackHeight] is bigger than
+ * [thumb].
+ */
 @Composable
 fun ColorfulIconSlider(
     modifier: Modifier = Modifier,
@@ -39,135 +130,120 @@ fun ColorfulIconSlider(
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     trackHeight: Dp = TrackHeight,
-    coerceThumbInTrack: Boolean = false,
-    drawInactiveTrack: Boolean = true,
     colors: MaterialSliderColors = MaterialSliderDefaults.defaultColors(),
+    borderStroke: BorderStroke? = null,
+    drawInactiveTrack: Boolean = true,
+    coerceThumbInTrack: Boolean = false,
     thumb: @Composable () -> Unit
 ) {
 
-    require(steps >= 0) { "steps should be >= 0" }
-    val onValueChangeState = rememberUpdatedState(onValueChange)
-    val tickFractions = remember(steps) {
-        stepsToTickFractions(steps)
-    }
-    BoxWithConstraints(
-        modifier = modifier
-            .minimumTouchTargetSize()
-            .requiredSizeIn(
-                minWidth = ThumbRadius * 2,
-                minHeight = ThumbRadius * 2,
-                maxHeight = 48.dp
-            ),
-        contentAlignment = Alignment.CenterStart
-    ) {
+    SliderComposeLayout(thumb = { thumb() }) { thumbSize ->
 
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-
-        val width = constraints.maxWidth.toFloat()
-
-        // Start of the track used for measuring progress,
-        // it's line + radius of cap which is half of height of track
-        // to draw this on canvas starting point of line
-        // should be at trackStart + trackHeightInPx / 2 while drawing
-        val trackStart: Float
-        // End of the track that is used for measuring progress
-        val trackEnd: Float
-        val strokeRadius: Float
-        with(LocalDensity.current) {
-            strokeRadius = trackHeight.toPx() / 2
-            trackStart = strokeRadius
-            trackEnd = width - trackStart
+        require(steps >= 0) { "steps should be >= 0" }
+        val onValueChangeState = rememberUpdatedState(onValueChange)
+        val tickFractions = remember(steps) {
+            stepsToTickFractions(steps)
         }
-        val trackHeightPx = strokeRadius * 2
 
-        // Sales and interpolates from offset from dragging to user value in valueRange
-        fun scaleToUserValue(offset: Float) =
-            scale(trackStart, trackEnd, offset, valueRange.start, valueRange.endInclusive)
+        BoxWithConstraints(
+            modifier = modifier
+                .minimumTouchTargetSize()
+                .requiredSizeIn(
+                    minWidth = ThumbRadius * 2,
+                    minHeight = ThumbRadius * 2,
+                ),
+            contentAlignment = Alignment.CenterStart
+        ) {
 
-        // Scales user value using valueRange to position on x axis on screen
-        fun scaleToOffset(userValue: Float) =
-            scale(valueRange.start, valueRange.endInclusive, userValue, trackStart, trackEnd)
+            val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-        val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
+            val width = constraints.maxWidth.toFloat()
+            val thumbRadiusInPx = (thumbSize.width / 2).toFloat()
 
-        CorrectValueSideEffect(::scaleToOffset, valueRange, trackStart..trackEnd, rawOffset, value)
+            // Start of the track used for measuring progress,
+            // it's line + radius of cap which is half of height of track
+            // to draw this on canvas starting point of line
+            // should be at trackStart + trackHeightInPx / 2 while drawing
+            val trackStart: Float
+            // End of the track that is used for measuring progress
+            val trackEnd: Float
+            val strokeRadius: Float
+            with(LocalDensity.current) {
 
-        val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
-        val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
-
-        val dragModifier = Modifier.pointerMotionEvents(
-            onDown = {
-                if (enabled) {
-                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                    onValueChangeState.value.invoke(
-                        scaleToUserValue(offsetInTrack),
-                        Offset(rawOffset.value, strokeRadius)
-                    )
-                    it.consumeDownChange()
-                }
-            },
-            onMove = {
-                if (enabled) {
-                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                    onValueChangeState.value.invoke(
-                        scaleToUserValue(offsetInTrack),
-                        Offset(rawOffset.value, strokeRadius)
-                    )
-                    it.consumePositionChange()
-                }
-
-            },
-            onUp = {
-                if (enabled) {
-                    onValueChangeFinished?.invoke()
-                    it.consumeDownChange()
-                }
+                strokeRadius = trackHeight.toPx() / 2
+                trackStart = thumbRadiusInPx.coerceAtLeast(strokeRadius)
+                trackEnd = width - trackStart
             }
-        )
 
+            // Sales and interpolates from offset from dragging to user value in valueRange
+            fun scaleToUserValue(offset: Float) =
+                scale(trackStart, trackEnd, offset, valueRange.start, valueRange.endInclusive)
 
-        val content = @Composable {
+            // Scales user value using valueRange to position on x axis on screen
+            fun scaleToOffset(userValue: Float) =
+                scale(valueRange.start, valueRange.endInclusive, userValue, trackStart, trackEnd)
+
+            val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
+
+            CorrectValueSideEffect(
+                ::scaleToOffset,
+                valueRange,
+                trackStart..trackEnd,
+                rawOffset,
+                value
+            )
+
+            val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
+            val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
+
+            val dragModifier = Modifier.pointerMotionEvents(
+                onDown = {
+                    if (enabled) {
+                        rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
+                        val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                        onValueChangeState.value.invoke(
+                            scaleToUserValue(offsetInTrack),
+                            Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                        )
+                        it.consumeDownChange()
+                    }
+                },
+                onMove = {
+                    if (enabled) {
+                        rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
+                        val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                        onValueChangeState.value.invoke(
+                            scaleToUserValue(offsetInTrack),
+                            Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                        )
+                        it.consumePositionChange()
+                    }
+
+                },
+                onUp = {
+                    if (enabled) {
+                        onValueChangeFinished?.invoke()
+                        it.consumeDownChange()
+                    }
+                }
+            )
+
             IconSliderImpl(
                 enabled = enabled,
                 fraction = fraction,
                 trackStart = trackStart,
+                trackEnd = trackEnd,
                 tickFractions = tickFractions,
                 colors = colors,
-                trackHeight = trackHeightPx,
+                trackHeight = trackHeight,
+                thumbRadius = thumbRadiusInPx,
+                thumb = thumb,
+                coerceThumbInTrack = coerceThumbInTrack,
                 drawInactiveTrack = drawInactiveTrack,
-                modifier = dragModifier.background(Color.Yellow)
+                borderStroke = borderStroke,
+                modifier = dragModifier
             )
-
-            thumb()
         }
-
-
-        Layout(
-            modifier = modifier,
-            content = content
-        ) { measurables: List<Measurable>, constraints: Constraints ->
-
-            val placeables = measurables.map { measurable: Measurable ->
-                measurable.measure(constraints)
-            }
-            val track = placeables.first()
-            val thumbPlaceable = placeables.last()
-            val trackWidth = trackEnd - trackStart
-            val thumbWidth = thumbPlaceable.width
-
-            val height = (track.height.coerceAtLeast(thumbPlaceable.height)).toInt()
-
-            layout(trackWidth.toInt(), height) {
-                track.placeRelative(0, 0)
-                thumbPlaceable.placeRelative(
-                    (fraction * trackWidth).toInt(),
-                    (height - thumbPlaceable.height) / 2
-                )
-            }
-        }
-
     }
 }
 
@@ -176,17 +252,39 @@ private fun IconSliderImpl(
     enabled: Boolean,
     fraction: Float,
     trackStart: Float,
+    trackEnd: Float,
     tickFractions: List<Float>,
     colors: MaterialSliderColors,
-    trackHeight: Float,
+    trackHeight: Dp,
+    thumbRadius: Float,
+    thumb: @Composable () -> Unit,
+    coerceThumbInTrack: Boolean,
     drawInactiveTrack: Boolean,
+    borderStroke: BorderStroke? = null,
     modifier: Modifier,
 ) {
 
     Box(
         // DefaultSliderConstraints constrains this Box with min width and max height
-        modifier.then(DefaultSliderConstraints)
+        modifier.then(DefaultSliderConstraints),
+        contentAlignment = Alignment.CenterStart
     ) {
+
+        val trackStrokeWidth: Float
+
+        var borderWidth = 0f
+        val borderBrush: Brush? = borderStroke?.brush
+
+
+        with(LocalDensity.current) {
+            trackStrokeWidth = trackHeight.toPx()
+            if (borderStroke != null) {
+                borderWidth = borderStroke.width.toPx()
+            }
+        }
+
+        // Position that corresponds to center of this slider's thumb
+        val thumbCenterPos = (trackStart + (trackEnd - trackStart) * fraction)
 
         Track(
             modifier = Modifier
@@ -194,24 +292,47 @@ private fun IconSliderImpl(
                 .fillMaxSize(),
             fraction = fraction,
             tickFractions = tickFractions,
+            thumbRadius = thumbRadius,
             trackStart = trackStart,
-            trackHeight = trackHeight,
+            trackHeight = trackStrokeWidth,
+            coerceThumbInTrack = coerceThumbInTrack,
             colors = colors,
             enabled = enabled,
+            borderBrush = borderBrush,
+            borderWidth = borderWidth,
             drawInactiveTrack = drawInactiveTrack
         )
+
+        Box(modifier = modifier
+            .offset { IntOffset((thumbCenterPos - thumbRadius).toInt(), 0) }
+        ) {
+            thumb()
+        }
     }
 }
 
+
+/**
+ * Draws active and if [drawInactiveTrack] is set to true inactive tracks on Canvas.
+ * If inactive track is to be drawn it's drawn between start and end of canvas. Active track
+ * is drawn between start and current value.
+ *
+ * Drawing both tracks use [SliderBrushColor] to draw a nullable [Brush] first. If it's not then
+ * [SliderBrushColor.solidColor] is used to draw with solid colors provided by [MaterialSliderColors]
+ */
 @Composable
 private fun Track(
     modifier: Modifier,
     fraction: Float,
     tickFractions: List<Float>,
+    thumbRadius: Float,
     trackStart: Float,
     trackHeight: Float,
+    coerceThumbInTrack: Boolean,
     colors: MaterialSliderColors,
     enabled: Boolean,
+    borderBrush: Brush?,
+    borderWidth: Float,
     drawInactiveTrack: Boolean,
 ) {
 
@@ -234,10 +355,12 @@ private fun Track(
 
     // When coerced move edges of drawing by thumb radius to cover thumb edges in drawing
     // it needs to move to right as stroke radius minus thumb radius to match track start
-    val drawStart = trackStart
+    val drawStart =
+        if (coerceThumbInTrack) trackStart - thumbRadius + strokeRadius else trackStart
 
     Canvas(modifier = modifier) {
         val width = size.width
+        val height = size.height
         val isRtl = layoutDirection == LayoutDirection.Rtl
 
         val centerY = center.y
@@ -255,6 +378,7 @@ private fun Track(
             center.y
         )
 
+        // InActive Track
         drawLine(
             brush = inactiveTrackColor,
             start = sliderStart,
@@ -263,6 +387,7 @@ private fun Track(
             cap = StrokeCap.Round
         )
 
+        // Active Track
         drawLine(
             brush = activeTrackColor,
             start = sliderStart,
@@ -280,6 +405,16 @@ private fun Track(
             )
         }
 
+        borderBrush?.let { brush ->
+            drawRoundRect(
+                brush = brush,
+                topLeft = Offset(sliderStart.x - strokeRadius, (height - trackHeight) / 2),
+                size = Size(width = sliderEnd.x - sliderStart.x + trackHeight, trackHeight),
+                cornerRadius = CornerRadius(strokeRadius, strokeRadius),
+                style = Stroke(width = borderWidth)
+            )
+        }
+
         if (drawInactiveTrack) {
             tickFractions.groupBy { it > fraction }
                 .forEach { (outsideFraction, list) ->
@@ -293,10 +428,48 @@ private fun Track(
                         pointMode = PointMode.Points,
                         brush = if (outsideFraction) inactiveTickColor
                         else activeTickColor,
-                        strokeWidth = strokeRadius,
+                        strokeRadius.coerceAtMost(thumbRadius / 2),
                         cap = StrokeCap.Round
                     )
                 }
+        }
+    }
+}
+
+enum class SlotsEnum {
+    Track, Thumb
+}
+
+@Composable
+private fun SliderComposeLayout(
+    modifier: Modifier = Modifier,
+    thumb: @Composable () -> Unit,
+    track: @Composable (IntSize) -> Unit
+) {
+
+    SubcomposeLayout(modifier = modifier) { constraints ->
+
+        // Subcompose(compose only a section) main content and get Placeable
+        val thumbPlaceable: Placeable = subcompose(SlotsEnum.Thumb, thumb).map {
+            it.measure(constraints)
+        }.first()
+
+        // Width and height of the thumb Composable
+        val thumbSize = IntSize(thumbPlaceable.width, thumbPlaceable.height)
+
+        // Whole Slider Composable
+        val sliderPlaceable: Placeable = subcompose(SlotsEnum.Track) {
+            track(thumbSize)
+        }.map {
+            it.measure(constraints)
+        }.first()
+
+
+        val sliderWidth = sliderPlaceable.width
+        val sliderHeight = sliderPlaceable.height
+
+        layout(sliderWidth, sliderHeight) {
+            sliderPlaceable.placeRelative(0, 0)
         }
     }
 }

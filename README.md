@@ -3,9 +3,9 @@ Colorful sliders that can have Solid or Gradient colors for thumb or track which
  thumb and track with varying sizes, borders with solid or gradient colors.
 And Sliders with emojis, or custom Composables like **Icon**.
 
-| Dimensions | Properties | SliderLabel | Gradient1 |
+| Dimensions | Properties | Icon | SliderLabel | Gradient1 |
 | ----------|-----------| -----------| -----------|
-| <img src="./screenshots/slider1.png"/> | <img src="./screenshots/slider2.png"/> | <img src="./screenshots/slider3.png"/> |  <img src="./screenshots/slider4.png"/> |
+| <img src="./screenshots/slider_dimensions.png"/> | <img src="./screenshots/slider_properties.png"/> | <img src="./screenshots/slider_icons.png"/> |  <img src="./screenshots/slider_labels.png"/> | <img src="./screenshots/slider_gradient.png"/> |
 
 
 ### ColorfulSlider

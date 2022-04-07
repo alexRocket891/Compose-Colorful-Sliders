@@ -27,7 +27,6 @@ import com.smarttoolfactory.slider.gesture.pointerMotionEvents
 import kotlin.math.abs
 
 /**
- *
  * Sliders allow users to make selections from a range of values.
  *
  * Sliders reflect a range of values along a bar, from which users may select a single value.
@@ -40,8 +39,10 @@ import kotlin.math.abs
  * of steps between min and max values:
  *
  * Material Slider allows to choose height for track and thumb radius and selection between
- * [Color] or [Brush] using [SliderBrushColor]. If brush of [SliderBrushColor.brush] is not null gradient
- * provided in this [Brush] is used for drawing otherwise solid color [SliderBrushColor.solidColor] is used.
+ * [Color] or [Brush] using [SliderBrushColor]. If brush of [SliderBrushColor.brush] is
+ * not null gradient
+ * provided in this [Brush] is used for drawing otherwise solid color
+ * [SliderBrushColor.solidColor] is used.
  *
  * @param value current value of the Slider. If outside of [valueRange] provided, value will be
  * coerced to this range.
@@ -101,7 +102,6 @@ fun ColorfulSlider(
 }
 
 /**
- *
  * Sliders allow users to make selections from a range of values.
  *
  * Sliders reflect a range of values along a bar, from which users may select a single value.
@@ -114,8 +114,10 @@ fun ColorfulSlider(
  * of steps between min and max values:
  *
  * Material Slider allows to choose height for track and thumb radius and selection between
- * [Color] or [Brush] using [SliderBrushColor]. If brush of [SliderBrushColor.brush] is not null gradient
- * provided in this [Brush] is used for drawing otherwise solid color [SliderBrushColor.solidColor] is used.
+ * [Color] or [Brush] using [SliderBrushColor]. If brush of [SliderBrushColor.brush] is
+ * not null gradient
+ * provided in this [Brush] is used for drawing otherwise solid color
+ * [SliderBrushColor.solidColor] is used.
  *
  * @param value current value of the Slider. If outside of [valueRange] provided, value will be
  * coerced to this range.
@@ -143,7 +145,7 @@ fun ColorfulSlider(
 @Composable
 fun ColorfulSlider(
     value: Float,
-    onValueChange: (Float,Offset) -> Unit,
+    onValueChange: (Float, Offset) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -203,7 +205,13 @@ fun ColorfulSlider(
 
         val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
 
-        CorrectValueSideEffect(::scaleToOffset, valueRange, trackStart..trackEnd, rawOffset, value)
+        CorrectValueSideEffect(
+            ::scaleToOffset,
+            valueRange,
+            trackStart..trackEnd,
+            rawOffset,
+            value
+        )
 
         val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
         val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
@@ -298,8 +306,6 @@ private fun SliderImpl(
         // Position that corresponds to center of this slider's thumb
         val thumbCenterPos = (trackStart + (trackEnd - trackStart) * fraction)
 
-
-
         Track(
             modifier = Modifier
                 .align(Alignment.CenterStart)
@@ -392,7 +398,6 @@ private fun Track(
             sliderStart.x + (sliderEnd.x - sliderStart.x) * fraction,
             center.y
         )
-
 
         // InActive Track
         drawLine(
