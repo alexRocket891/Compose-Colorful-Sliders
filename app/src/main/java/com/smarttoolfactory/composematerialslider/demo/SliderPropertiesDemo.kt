@@ -99,7 +99,7 @@ fun SliderPropertiesDemo() {
             var labelOffset by remember { mutableStateOf(Offset.Zero) }
 
             var labelWidth by remember { mutableStateOf(0) }
-            Text(text = "Price ${labelProgress.roundToInt()}",
+            Text(text = "Price $${labelProgress.roundToInt()}",
                 modifier = Modifier
                     .offset {
                         IntOffset(labelOffset.x.toInt() - labelWidth / 2, labelOffset.y.toInt())

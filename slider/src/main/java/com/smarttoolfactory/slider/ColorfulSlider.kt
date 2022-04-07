@@ -1,5 +1,6 @@
 package com.smarttoolfactory.slider
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,9 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.platform.LocalDensity
@@ -41,26 +45,25 @@ import kotlin.math.abs
  *
  * @param value current value of the Slider. If outside of [valueRange] provided, value will be
  * coerced to this range.
- * @param onValueChange lambda that returns value, position of **thumb** as [Offset], vertical
- * center is stored in y.
- * @param modifier modifiers for the Slider layout
- * @param trackHeight height of the track that will be drawn on [Canvas]. half of [trackHeight]
- * is used as **stroke** width.
- * @param thumbRadius radius of thumb of the the slider
+ * @param onValueChange lambda that returns value.
+ * @param modifier modifiers for the Slider layout.
  * @param enabled whether or not component is enabled and can be interacted with or not
  * @param valueRange range of values that Slider value can take. Passed [value] will be coerced to
  * this range
  * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
  * between across the whole value range. If 0, slider will behave as a continuous slider and allow
  * to choose any value from the range specified. Must not be negative.
- * @param coerceThumbInTrack when set to true track's start position is matched to thumbs left
- * on start and thumbs right at the end of the track. Use this when [trackHeight] is bigger than
- * [thumbRadius]
- * @param drawInactiveTrack flag to draw **InActive** track when value is smaller than track end.
- * Setting false only draws active flag and only displays track with **active track color**.
+ * @param trackHeight height of the track that will be drawn on [Canvas]. half of [trackHeight]
+ * is used as **stroke** width.
+ * @param thumbRadius radius of thumb of the the slider
  * @param colors [MaterialSliderColors] that will be used to determine the color of the Slider parts in
  * different state. See [MaterialSliderDefaults.defaultColors],
  * [MaterialSliderDefaults.customColors] or other functions to customize.
+ * @param borderStroke draws border around the track with given width in dp.
+ * @param drawInactiveTrack flag to draw **InActive** track between active progress and track end.
+ * @param coerceThumbInTrack when set to true track's start position is matched to thumbs left
+ * on start and thumbs right at the end of the track. Use this when [trackHeight] is bigger than
+ * [thumbRadius].
  */
 @Composable
 fun ColorfulSlider(
@@ -73,9 +76,10 @@ fun ColorfulSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     trackHeight: Dp = TrackHeight,
     thumbRadius: Dp = ThumbRadius,
-    coerceThumbInTrack: Boolean = false,
+    colors: MaterialSliderColors = MaterialSliderDefaults.defaultColors(),
+    borderStroke: BorderStroke? = null,
     drawInactiveTrack: Boolean = true,
-    colors: MaterialSliderColors = MaterialSliderDefaults.defaultColors()
+    coerceThumbInTrack: Boolean = false
 ) {
     ColorfulSlider(
         modifier = modifier,
@@ -89,9 +93,10 @@ fun ColorfulSlider(
         onValueChangeFinished = onValueChangeFinished,
         trackHeight = trackHeight,
         thumbRadius = thumbRadius,
-        coerceThumbInTrack = coerceThumbInTrack,
+        colors = colors,
+        borderStroke = borderStroke,
         drawInactiveTrack = drawInactiveTrack,
-        colors = colors
+        coerceThumbInTrack = coerceThumbInTrack
     )
 }
 
@@ -117,38 +122,39 @@ fun ColorfulSlider(
  * @param onValueChange lambda that returns value, position of **thumb** as [Offset], vertical
  * center is stored in y.
  * @param modifier modifiers for the Slider layout
- * @param trackHeight height of the track that will be drawn on [Canvas]. half of [trackHeight]
- * is used as **stroke** width.
- * @param thumbRadius radius of thumb of the the slider
  * @param enabled whether or not component is enabled and can be interacted with or not
  * @param valueRange range of values that Slider value can take. Passed [value] will be coerced to
  * this range
  * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
  * between across the whole value range. If 0, slider will behave as a continuous slider and allow
  * to choose any value from the range specified. Must not be negative.
- * @param coerceThumbInTrack when set to true track's start position is matched to thumbs left
- * on start and thumbs right at the end of the track. Use this when [trackHeight] is bigger than
- * [thumbRadius]
- * @param drawInactiveTrack flag to draw **InActive** track when value is smaller than track end.
- * Setting false only draws active flag and only displays track with **active track color**.
+ * @param trackHeight height of the track that will be drawn on [Canvas]. half of [trackHeight]
+ * is used as **stroke** width.
+ * @param thumbRadius radius of thumb of the the slider
  * @param colors [MaterialSliderColors] that will be used to determine the color of the Slider parts in
  * different state. See [MaterialSliderDefaults.defaultColors],
  * [MaterialSliderDefaults.customColors] or other functions to customize.
+ * @param borderStroke draws border around the track with given width in dp.
+ * @param drawInactiveTrack flag to draw **InActive** track between active progress and track end.
+ * @param coerceThumbInTrack when set to true track's start position is matched to thumbs left
+ * on start and thumbs right at the end of the track. Use this when [trackHeight] is bigger than
+ * [thumbRadius].
  */
 @Composable
 fun ColorfulSlider(
-    modifier: Modifier = Modifier,
     value: Float,
-    onValueChange: (Float, Offset) -> Unit,
+    onValueChange: (Float,Offset) -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     trackHeight: Dp = TrackHeight,
     thumbRadius: Dp = ThumbRadius,
-    coerceThumbInTrack: Boolean = false,
+    colors: MaterialSliderColors = MaterialSliderDefaults.defaultColors(),
+    borderStroke: BorderStroke? = null,
     drawInactiveTrack: Boolean = true,
-    colors: MaterialSliderColors = MaterialSliderDefaults.defaultColors()
+    coerceThumbInTrack: Boolean = false
 ) {
 
     require(steps >= 0) { "steps should be >= 0" }
@@ -245,6 +251,7 @@ fun ColorfulSlider(
             thumbRadius = thumbRadiusInPx,
             coerceThumbInTrack = coerceThumbInTrack,
             drawInactiveTrack = drawInactiveTrack,
+            borderStroke = borderStroke,
             modifier = dragModifier
         )
     }
@@ -262,6 +269,7 @@ private fun SliderImpl(
     thumbRadius: Float,
     coerceThumbInTrack: Boolean,
     drawInactiveTrack: Boolean,
+    borderStroke: BorderStroke? = null,
     modifier: Modifier,
 ) {
 
@@ -273,13 +281,24 @@ private fun SliderImpl(
         val trackStrokeWidth: Float
         val thumbSize: Dp
 
+        var borderWidth = 0f
+        val borderBrush: Brush? = borderStroke?.brush
+
+
         with(LocalDensity.current) {
             trackStrokeWidth = trackHeight.toPx()
             thumbSize = (2 * thumbRadius).toDp()
+
+            if (borderStroke != null) {
+                borderWidth = borderStroke.width.toPx()
+            }
+
         }
 
         // Position that corresponds to center of this slider's thumb
         val thumbCenterPos = (trackStart + (trackEnd - trackStart) * fraction)
+
+
 
         Track(
             modifier = Modifier
@@ -293,6 +312,8 @@ private fun SliderImpl(
             coerceThumbInTrack = coerceThumbInTrack,
             colors = colors,
             enabled = enabled,
+            borderBrush = borderBrush,
+            borderWidth = borderWidth,
             drawInactiveTrack = drawInactiveTrack
         )
 
@@ -325,6 +346,8 @@ private fun Track(
     coerceThumbInTrack: Boolean,
     colors: MaterialSliderColors,
     enabled: Boolean,
+    borderBrush: Brush?,
+    borderWidth: Float,
     drawInactiveTrack: Boolean,
 ) {
 
@@ -352,6 +375,7 @@ private fun Track(
 
     Canvas(modifier = modifier) {
         val width = size.width
+        val height = size.height
         val isRtl = layoutDirection == LayoutDirection.Rtl
 
         val centerY = center.y
@@ -369,6 +393,8 @@ private fun Track(
             center.y
         )
 
+
+        // InActive Track
         drawLine(
             brush = inactiveTrackColor,
             start = sliderStart,
@@ -377,6 +403,7 @@ private fun Track(
             cap = StrokeCap.Round
         )
 
+        // Active Track
         drawLine(
             brush = activeTrackColor,
             start = sliderStart,
@@ -391,6 +418,16 @@ private fun Track(
                 start = sliderStart,
                 end = sliderEnd,
                 strokeWidth = strokeRadius / 4
+            )
+        }
+
+        borderBrush?.let { brush ->
+            drawRoundRect(
+                brush = brush,
+                topLeft = Offset(sliderStart.x - strokeRadius, (height - trackHeight) / 2),
+                size = Size(width = sliderEnd.x - sliderStart.x + trackHeight, trackHeight),
+                cornerRadius = CornerRadius(strokeRadius, strokeRadius),
+                style = Stroke(width = borderWidth)
             )
         }
 

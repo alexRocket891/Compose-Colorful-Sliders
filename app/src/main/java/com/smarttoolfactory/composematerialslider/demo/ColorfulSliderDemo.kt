@@ -1,5 +1,6 @@
 package com.smarttoolfactory.composematerialslider.demo
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -147,6 +149,50 @@ fun ColorfulSliderDemo() {
                 thumbColor = SliderBrushColor(color = Red400),
                 inactiveTrackColor = SliderBrushColor(color = Grey400)
             )
+        )
+
+        TitleText("Solid Border")
+        var progress4 by remember { mutableStateOf(0f) }
+        ColorfulSlider(
+            value = progress4,
+            thumbRadius = 10.dp,
+            trackHeight = 12.dp,
+            onValueChange = { value ->
+                progress4 = value
+            },
+            colors = MaterialSliderDefaults.materialColors(
+                activeTrackColor = SliderBrushColor(color = Color.Black),
+                inactiveTrackColor = SliderBrushColor(color = Color.Transparent)
+            ),
+            borderStroke = BorderStroke(1.dp, Color.Black)
+        )
+
+        ColorfulSlider(
+            value = progress4,
+            thumbRadius = 12.dp,
+            trackHeight = 14.dp,
+            onValueChange = { value ->
+                progress4 = value
+            },
+            colors = MaterialSliderDefaults.materialColors(
+                activeTrackColor = SliderBrushColor(color = Red400),
+                inactiveTrackColor = SliderBrushColor(color = Color.Transparent)
+            ),
+            borderStroke = BorderStroke(1.dp, Red400)
+        )
+
+        ColorfulSlider(
+            value = progress4,
+            thumbRadius = 10.dp,
+            trackHeight = 14.dp,
+            onValueChange = { value ->
+                progress4 = value
+            },
+            colors = MaterialSliderDefaults.materialColors(
+                activeTrackColor = SliderBrushColor(color = Blue400),
+                inactiveTrackColor = SliderBrushColor(color = Color.Transparent)
+            ),
+            borderStroke = BorderStroke(1.dp, Blue400)
         )
 
 //        ColorfulIconSlider(
