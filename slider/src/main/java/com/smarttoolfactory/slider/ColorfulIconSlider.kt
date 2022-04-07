@@ -2,7 +2,10 @@ package com.smarttoolfactory.slider
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,10 +23,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.*
 import com.smarttoolfactory.slider.gesture.pointerMotionEvents
 
 /**
@@ -137,7 +137,14 @@ fun ColorfulIconSlider(
     thumb: @Composable () -> Unit
 ) {
 
-    SliderComposeLayout(thumb = { thumb() }) { thumbSize ->
+    SliderComposeLayout(
+        modifier = modifier
+            .minimumTouchTargetSize()
+            .requiredSizeIn(
+                minWidth = ThumbRadius * 2,
+                minHeight = ThumbRadius * 2,
+            ),
+        thumb = { thumb() }) { thumbSize: IntSize, constraints: Constraints ->
 
         require(steps >= 0) { "steps should be >= 0" }
         val onValueChangeState = rememberUpdatedState(onValueChange)
@@ -145,105 +152,95 @@ fun ColorfulIconSlider(
             stepsToTickFractions(steps)
         }
 
-        BoxWithConstraints(
-            modifier = modifier
-                .minimumTouchTargetSize()
-                .requiredSizeIn(
-                    minWidth = ThumbRadius * 2,
-                    minHeight = ThumbRadius * 2,
-                ),
-            contentAlignment = Alignment.CenterStart
-        ) {
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-            val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        val width = constraints.maxWidth.toFloat()
+        val thumbRadiusInPx = (thumbSize.width / 2).toFloat()
 
-            val width = constraints.maxWidth.toFloat()
-            val thumbRadiusInPx = (thumbSize.width / 2).toFloat()
+        // Start of the track used for measuring progress,
+        // it's line + radius of cap which is half of height of track
+        // to draw this on canvas starting point of line
+        // should be at trackStart + trackHeightInPx / 2 while drawing
+        val trackStart: Float
+        // End of the track that is used for measuring progress
+        val trackEnd: Float
+        val strokeRadius: Float
+        with(LocalDensity.current) {
 
-            // Start of the track used for measuring progress,
-            // it's line + radius of cap which is half of height of track
-            // to draw this on canvas starting point of line
-            // should be at trackStart + trackHeightInPx / 2 while drawing
-            val trackStart: Float
-            // End of the track that is used for measuring progress
-            val trackEnd: Float
-            val strokeRadius: Float
-            with(LocalDensity.current) {
-
-                strokeRadius = trackHeight.toPx() / 2
-                trackStart = thumbRadiusInPx.coerceAtLeast(strokeRadius)
-                trackEnd = width - trackStart
-            }
-
-            // Sales and interpolates from offset from dragging to user value in valueRange
-            fun scaleToUserValue(offset: Float) =
-                scale(trackStart, trackEnd, offset, valueRange.start, valueRange.endInclusive)
-
-            // Scales user value using valueRange to position on x axis on screen
-            fun scaleToOffset(userValue: Float) =
-                scale(valueRange.start, valueRange.endInclusive, userValue, trackStart, trackEnd)
-
-            val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
-
-            CorrectValueSideEffect(
-                ::scaleToOffset,
-                valueRange,
-                trackStart..trackEnd,
-                rawOffset,
-                value
-            )
-
-            val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
-            val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
-
-            val dragModifier = Modifier.pointerMotionEvents(
-                onDown = {
-                    if (enabled) {
-                        rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                        val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                        onValueChangeState.value.invoke(
-                            scaleToUserValue(offsetInTrack),
-                            Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
-                        )
-                        it.consumeDownChange()
-                    }
-                },
-                onMove = {
-                    if (enabled) {
-                        rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                        val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                        onValueChangeState.value.invoke(
-                            scaleToUserValue(offsetInTrack),
-                            Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
-                        )
-                        it.consumePositionChange()
-                    }
-
-                },
-                onUp = {
-                    if (enabled) {
-                        onValueChangeFinished?.invoke()
-                        it.consumeDownChange()
-                    }
-                }
-            )
-
-            IconSliderImpl(
-                enabled = enabled,
-                fraction = fraction,
-                trackStart = trackStart,
-                trackEnd = trackEnd,
-                tickFractions = tickFractions,
-                colors = colors,
-                trackHeight = trackHeight,
-                thumbRadius = thumbRadiusInPx,
-                thumb = thumb,
-                coerceThumbInTrack = coerceThumbInTrack,
-                drawInactiveTrack = drawInactiveTrack,
-                borderStroke = borderStroke,
-                modifier = dragModifier
-            )
+            strokeRadius = trackHeight.toPx() / 2
+            trackStart = thumbRadiusInPx.coerceAtLeast(strokeRadius)
+            trackEnd = width - trackStart
         }
+
+        // Sales and interpolates from offset from dragging to user value in valueRange
+        fun scaleToUserValue(offset: Float) =
+            scale(trackStart, trackEnd, offset, valueRange.start, valueRange.endInclusive)
+
+        // Scales user value using valueRange to position on x axis on screen
+        fun scaleToOffset(userValue: Float) =
+            scale(valueRange.start, valueRange.endInclusive, userValue, trackStart, trackEnd)
+
+        val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
+
+        CorrectValueSideEffect(
+            ::scaleToOffset,
+            valueRange,
+            trackStart..trackEnd,
+            rawOffset,
+            value
+        )
+
+        val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
+        val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
+
+        val dragModifier = Modifier.pointerMotionEvents(
+            onDown = {
+                if (enabled) {
+                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
+                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                    onValueChangeState.value.invoke(
+                        scaleToUserValue(offsetInTrack),
+                        Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                    )
+                    it.consumeDownChange()
+                }
+            },
+            onMove = {
+                if (enabled) {
+                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
+                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                    onValueChangeState.value.invoke(
+                        scaleToUserValue(offsetInTrack),
+                        Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                    )
+                    it.consumePositionChange()
+                }
+
+            },
+            onUp = {
+                if (enabled) {
+                    onValueChangeFinished?.invoke()
+                    it.consumeDownChange()
+                }
+            }
+        )
+
+        IconSliderImpl(
+            enabled = enabled,
+            fraction = fraction,
+            trackStart = trackStart,
+            trackEnd = trackEnd,
+            tickFractions = tickFractions,
+            colors = colors,
+            trackHeight = trackHeight,
+            thumbRadius = thumbRadiusInPx,
+            thumb = thumb,
+            coerceThumbInTrack = coerceThumbInTrack,
+            drawInactiveTrack = drawInactiveTrack,
+            borderStroke = borderStroke,
+            modifier = dragModifier
+        )
+
     }
 }
 
@@ -437,17 +434,21 @@ private fun Track(
 }
 
 enum class SlotsEnum {
-    Track, Thumb
+    Slider, Thumb
 }
 
+/**
+ * [SubcomposeLayout] that measure [thumb] size to set Slider's track start and track width.
+ * @param thumb thumb Composable
+ * @param slider Slider composable that contains **thumb** and **track** of this Slider.
+ */
 @Composable
 private fun SliderComposeLayout(
     modifier: Modifier = Modifier,
     thumb: @Composable () -> Unit,
-    track: @Composable (IntSize) -> Unit
+    slider: @Composable (IntSize, Constraints) -> Unit
 ) {
-
-    SubcomposeLayout(modifier = modifier) { constraints ->
+    SubcomposeLayout(modifier = modifier) { constraints: Constraints ->
 
         // Subcompose(compose only a section) main content and get Placeable
         val thumbPlaceable: Placeable = subcompose(SlotsEnum.Thumb, thumb).map {
@@ -458,8 +459,8 @@ private fun SliderComposeLayout(
         val thumbSize = IntSize(thumbPlaceable.width, thumbPlaceable.height)
 
         // Whole Slider Composable
-        val sliderPlaceable: Placeable = subcompose(SlotsEnum.Track) {
-            track(thumbSize)
+        val sliderPlaceable: Placeable = subcompose(SlotsEnum.Slider) {
+            slider(thumbSize, constraints)
         }.map {
             it.measure(constraints)
         }.first()
