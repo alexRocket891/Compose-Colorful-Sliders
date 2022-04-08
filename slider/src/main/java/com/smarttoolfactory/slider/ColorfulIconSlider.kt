@@ -144,7 +144,8 @@ fun ColorfulIconSlider(
                 minWidth = ThumbRadius * 2,
                 minHeight = ThumbRadius * 2,
             ),
-        thumb = { thumb() }) { thumbSize: IntSize, constraints: Constraints ->
+        thumb = { thumb() }
+    ) { thumbSize: IntSize, constraints: Constraints ->
 
         require(steps >= 0) { "steps should be >= 0" }
         val onValueChangeState = rememberUpdatedState(onValueChange)
@@ -464,7 +465,6 @@ private fun SliderComposeLayout(
         }.map {
             it.measure(constraints)
         }.first()
-
 
         val sliderWidth = sliderPlaceable.width
         val sliderHeight = sliderPlaceable.height

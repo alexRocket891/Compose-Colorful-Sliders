@@ -446,7 +446,7 @@ private fun Track(
                         pointMode = PointMode.Points,
                         brush = if (outsideFraction) inactiveTickColor
                         else activeTickColor,
-                        strokeRadius.coerceAtMost(thumbRadius / 2),
+                        strokeWidth = strokeRadius.coerceAtMost(thumbRadius / 2),
                         cap = StrokeCap.Round
                     )
                 }

@@ -7,7 +7,7 @@ package com.smarttoolfactory.slider
  * @param end of interval
  * @param amount e closed unit interval [0, 1]
  */
-fun lerp(start: Float, end: Float, amount: Float): Float {
+internal fun lerp(start: Float, end: Float, amount: Float): Float {
     return (1 - amount) * start + amount * (end - start)
 }
 
@@ -15,13 +15,13 @@ fun lerp(start: Float, end: Float, amount: Float): Float {
  * Scale x1 from start1..end1 range to start2..end2 range
 
  */
-fun scale(start1: Float, end1: Float, pos: Float, start2: Float, end2: Float) =
+internal fun scale(start1: Float, end1: Float, pos: Float, start2: Float, end2: Float) =
     lerp(start2, end2, calculateFraction(start1, end1, pos))
 
 /**
  * Scale x.start, x.endInclusive from a1..b1 range to a2..b2 range
  */
-fun scale(
+internal fun scale(
     start1: Float,
     end1: Float,
     range: ClosedFloatingPointRange<Float>,

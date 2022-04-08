@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Suppress("ModifierInspectorInfo")
-fun Modifier.minimumTouchTargetSize(): Modifier = composed(
+internal fun Modifier.minimumTouchTargetSize(): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
         name = "minimumTouchTargetSize"
 

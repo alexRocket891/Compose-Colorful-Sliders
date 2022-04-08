@@ -4,9 +4,9 @@ Colorful sliders that can have Solid or Gradient colors for thumb or track which
 track with varying sizes, borders with solid or gradient colors. And Sliders with emojis, or custom
 Composables like **Icon**.
 
-|Dimensions |  Properties | Slider with Icon | Slider with Label | Gradient |
+|Properties | Dimensions  | Slider with Icon | Slider with Label | Gradient |
 | ----------|-----------| -----------| -----------| -----------|
-| <img src="./screenshots/slider_dimensions.png"/> | <img src="./screenshots/slider_properties.png"/> | <img src="./screenshots/slider_icons.png"/> |  <img src="./screenshots/slider_labels.png"/> | <img src="./screenshots/slider_gradient.png"/> |
+| <img src="./screenshots/slider_properties.png"/> | <img src="./screenshots/slider_dimensions.png"/> | <img src="./screenshots/slider_icons.png"/> |  <img src="./screenshots/slider_labels.png"/> | <img src="./screenshots/slider_gradient.png"/> |
 
 ### ColorfulSlider
 
@@ -198,6 +198,7 @@ fun ColorfulIconSlider(
 
 Usage
 
+Emojis are transparent by default in Compose, you might want to set non-transparent color for `Text`
 ```
 ColorfulIconSlider(
     value = progress,
