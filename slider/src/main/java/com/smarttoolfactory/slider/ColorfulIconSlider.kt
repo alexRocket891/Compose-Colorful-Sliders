@@ -24,7 +24,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
-import com.smarttoolfactory.slider.gesture.pointerMotionEvents
+import com.smarttoolfactory.gesture.pointerMotionEvents
 
 /**
  * Material Slider allows to choose height for track and thumb radius and selection between

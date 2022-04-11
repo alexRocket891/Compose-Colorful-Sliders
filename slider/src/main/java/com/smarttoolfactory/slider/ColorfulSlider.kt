@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.smarttoolfactory.slider.gesture.pointerMotionEvents
+import com.smarttoolfactory.gesture.pointerMotionEvents
 import kotlin.math.abs
 
 /**

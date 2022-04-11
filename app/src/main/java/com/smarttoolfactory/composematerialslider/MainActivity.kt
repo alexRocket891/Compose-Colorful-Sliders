@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -12,10 +11,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
 import com.smarttoolfactory.composematerialslider.demo.*
-import com.smarttoolfactory.composematerialslider.ui.theme.BlueSmart
 import com.smarttoolfactory.composematerialslider.ui.theme.BlueSmartDark
 import com.smarttoolfactory.composematerialslider.ui.theme.ComposeMaterialSliderTheme
 import kotlinx.coroutines.launch
@@ -54,11 +51,7 @@ private fun HomeContent() {
         // Our selected tab is our current page
         selectedTabIndex = pagerState.currentPage,
         // Override the indicator, using the provided pagerTabIndicatorOffset modifier
-        indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
-                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
-            )
-        }
+        indicator = {}
     ) {
         // Add tabs for all of our pages
         tabList.forEachIndexed { index, title ->
