@@ -2,10 +2,7 @@ package com.smarttoolfactory.slider
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -262,24 +259,30 @@ private fun IconSliderImpl(
     modifier: Modifier,
 ) {
 
+    val trackStrokeWidth: Float
+
+    var borderWidth = 0f
+    val borderBrush: Brush? = borderStroke?.brush
+    val thumbSize: Dp
+
+    with(LocalDensity.current) {
+        trackStrokeWidth = trackHeight.toPx()
+        thumbSize = (2 * thumbRadius).toDp()
+
+        if (borderStroke != null) {
+            borderWidth = borderStroke.width.toPx()
+        }
+    }
+
     Box(
-        // DefaultSliderConstraints constrains this Box with min width and max height
-        modifier.then(DefaultSliderConstraints),
+        // Constraint max height of Slider to max of thumb or track or minimum touch 48.dp
+        modifier.heightIn(
+            max = trackHeight
+                .coerceAtLeast(thumbSize)
+                .coerceAtLeast(TrackHeight)
+        ),
         contentAlignment = Alignment.CenterStart
     ) {
-
-        val trackStrokeWidth: Float
-
-        var borderWidth = 0f
-        val borderBrush: Brush? = borderStroke?.brush
-
-
-        with(LocalDensity.current) {
-            trackStrokeWidth = trackHeight.toPx()
-            if (borderStroke != null) {
-                borderWidth = borderStroke.width.toPx()
-            }
-        }
 
         // Position that corresponds to center of this slider's thumb
         val thumbCenterPos = (trackStart + (trackEnd - trackStart) * fraction)
@@ -308,7 +311,6 @@ private fun IconSliderImpl(
         }
     }
 }
-
 
 /**
  * Draws active and if [drawInactiveTrack] is set to true inactive tracks on Canvas.

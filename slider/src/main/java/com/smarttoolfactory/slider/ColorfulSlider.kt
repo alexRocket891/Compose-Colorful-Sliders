@@ -169,8 +169,7 @@ fun ColorfulSlider(
             .minimumTouchTargetSize()
             .requiredSizeIn(
                 minWidth = ThumbRadius * 2,
-                minHeight = ThumbRadius * 2,
-                maxHeight = 48.dp
+                minHeight = ThumbRadius * 2
             ),
         contentAlignment = Alignment.CenterStart
     ) {
@@ -281,35 +280,36 @@ private fun SliderImpl(
     modifier: Modifier,
 ) {
 
-    Box(
-        // DefaultSliderConstraints constrains this Box with min width and max height
-        modifier.then(DefaultSliderConstraints)
-    ) {
+    val trackStrokeWidth: Float
+    val thumbSize: Dp
 
-        val trackStrokeWidth: Float
-        val thumbSize: Dp
+    var borderWidth = 0f
+    val borderBrush: Brush? = borderStroke?.brush
 
-        var borderWidth = 0f
-        val borderBrush: Brush? = borderStroke?.brush
+    with(LocalDensity.current) {
+        trackStrokeWidth = trackHeight.toPx()
+        thumbSize = (2 * thumbRadius).toDp()
 
-
-        with(LocalDensity.current) {
-            trackStrokeWidth = trackHeight.toPx()
-            thumbSize = (2 * thumbRadius).toDp()
-
-            if (borderStroke != null) {
-                borderWidth = borderStroke.width.toPx()
-            }
-
+        if (borderStroke != null) {
+            borderWidth = borderStroke.width.toPx()
         }
+    }
+
+    Box(
+        // Constraint max height of Slider to max of thumb or track or minimum touch 48.dp
+        modifier
+            .heightIn(
+                max = trackHeight
+                    .coerceAtLeast(thumbSize)
+                    .coerceAtLeast(TrackHeight)
+            )
+    ) {
 
         // Position that corresponds to center of this slider's thumb
         val thumbCenterPos = (trackStart + (trackEnd - trackStart) * fraction)
 
         Track(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             fraction = fraction,
             tickFractions = tickFractions,
             thumbRadius = thumbRadius,
@@ -499,15 +499,6 @@ internal fun stepsToTickFractions(steps: Int): List<Float> {
     return if (steps == 0) emptyList() else List(steps + 2) { it.toFloat() / (steps + 1) }
 }
 
-// Internal to be referred to in tests
 internal val ThumbRadius = 10.dp
-
-// Internal to be referred to in tests
 internal val TrackHeight = 4.dp
-private val SliderHeight = 48.dp
-private val SliderMinWidth = 144.dp
-
-internal val DefaultSliderConstraints =
-    Modifier
-        .widthIn(min = SliderMinWidth)
-        .heightIn(min = SliderHeight)
+internal val SliderHeight = 48.dp

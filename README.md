@@ -7,7 +7,6 @@ track with varying sizes, borders with solid or gradient colors. And Sliders wit
 Composables like **Icon**.
 
 
-
 <img src="./screenshots/slider_icons.png" width="19%"/> <img src="./screenshots/slider_gradient.png" width="19%"/> <img src="./screenshots/slider_properties.png" width="19%"/> <img src="./screenshots/slider_labels.png" width="19%"/> <img src="./screenshots/slider_dimensions.png" width="19%"/> 
 
 ## ColorfulSlider
@@ -201,6 +200,7 @@ fun ColorfulIconSlider(
 Usage
 
 Emojis are transparent by default in Compose, you might want to set non-transparent color for `Text`
+
 ```
 ColorfulIconSlider(
     value = progress,
@@ -244,13 +244,13 @@ ColorfulIconSlider(
 }
 ```
 
-
 ## Gradle Setup
 
 To get a Git project into your build:
 
 * Step 1. Add the JitPack repository to your build file Add it in your root build.gradle at the end
   of repositories:
+
 ```
 allprojects {
   repositories {
