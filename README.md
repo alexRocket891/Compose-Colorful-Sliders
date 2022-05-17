@@ -14,7 +14,7 @@ Composables like **Icon**.
 Sliders that can use Color or gradient for track, thumb, or tick colors with custom thumb and track
 heights.
 
-```
+```kotlin
 @Composable
 fun ColorfulSlider(
     value: Float,
@@ -78,7 +78,7 @@ fun ColorfulSlider(
 
 Usage
 
-```
+```kotlin
 ColorfulSlider(
     value = progress2,
     thumbRadius = 10.dp,
@@ -98,7 +98,7 @@ ColorfulSlider(
 
 `SliderBrushColor` is a data class which can be used to set color or brush for any color property
 
-```
+```kotlin
 
 /**
  * Data class that contains color or/and brush property for drawing track section of
@@ -127,7 +127,7 @@ data class SliderBrushColor(
 
 Sliders that can move a label above the Slider and display progress
 
-```
+```kotlin
 fun SliderWithLabel(
     value: Float,
     onValueChange: (Float) -> Unit,
@@ -150,7 +150,7 @@ fun SliderWithLabel(
 
 Usage
 
-```
+```kotlin
 SliderWithLabel(
     value = labelProgress,
     onValueChange = {
@@ -179,7 +179,7 @@ SliderWithLabel(
 Sliders that can use any Composable for thumb and use Color or gradient for track, thumb, or tick
 colors with custom thumb and track heights.
 
-```
+```kotlin
 fun ColorfulIconSlider(
     modifier: Modifier = Modifier,
     value: Float,
@@ -201,7 +201,7 @@ Usage
 
 Emojis are transparent by default in Compose, you might want to set non-transparent color for `Text`
 
-```
+```kotlin
 ColorfulIconSlider(
     value = progress,
     onValueChange = { value, offset ->
@@ -220,7 +220,7 @@ ColorfulIconSlider(
 
 or
 
-```
+```kotlin
 ColorfulIconSlider(
     value = progress,
     onValueChange = { value, offset ->
