@@ -8,7 +8,7 @@ package com.smarttoolfactory.slider
  * @param amount e closed unit interval [0, 1]
  */
 internal fun lerp(start: Float, end: Float, amount: Float): Float {
-    return (1 - amount) * start + amount * (end - start)
+    return (1 - amount) * start + amount * end
 }
 
 /**
