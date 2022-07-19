@@ -2,8 +2,8 @@ package com.smarttoolfactory.slider
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.*
@@ -79,73 +79,86 @@ fun SliderWithLabel(
     yOffset: Dp = 0.dp,
     label: @Composable () -> Unit = {}
 ) {
-    Column(modifier = Modifier) {
+    BoxWithConstraints {
 
-        val yOffsetInt = with(LocalDensity.current) {
-            yOffset.toPx().toInt()
-        }
+        val maxWidth = constraints.maxWidth.toFloat()
+        Column {
 
-        var labelOffset by remember { mutableStateOf(Offset.Zero) }
-        var labelWidth by remember { mutableStateOf(0) }
-
-        if (labelPosition == LabelPosition.Top) {
-            Box(Modifier
-                .offset {
-                    IntOffset(labelOffset.x.toInt() - labelWidth / 2, yOffsetInt)
-                }
-                .onSizeChanged {
-                    labelWidth = it.width
-                }
-            ) {
-                label()
+            val yOffsetInt = with(LocalDensity.current) {
+                yOffset.toPx().toInt()
             }
-            ColorfulSlider(
-                modifier = modifier,
-                value = value,
-                onValueChange = { value, offset ->
-                    labelOffset = offset
-                    onValueChange(value)
-                },
-                enabled = enabled,
-                valueRange = valueRange,
-                steps = steps,
-                onValueChangeFinished = onValueChangeFinished,
-                trackHeight = trackHeight,
-                thumbRadius = thumbRadius,
-                borderStroke = borderStroke,
-                drawInactiveTrack = drawInactiveTrack,
-                coerceThumbInTrack = coerceThumbInTrack,
-                colors = colors
-            )
-        } else {
-            ColorfulSlider(
-                modifier = modifier,
-                value = value,
-                onValueChange = { value, offset ->
-                    labelOffset = offset
-                    onValueChange(value)
-                },
-                enabled = enabled,
-                valueRange = valueRange,
-                steps = steps,
-                onValueChangeFinished = onValueChangeFinished,
-                trackHeight = trackHeight,
-                thumbRadius = thumbRadius,
-                borderStroke = borderStroke,
-                drawInactiveTrack = drawInactiveTrack,
-                coerceThumbInTrack = coerceThumbInTrack,
-                colors = colors
-            )
 
-            Box(Modifier
-                .offset {
-                    IntOffset(labelOffset.x.toInt() - labelWidth / 2, yOffsetInt)
+            var labelOffset by remember {
+                mutableStateOf(
+                    Offset(
+                        x = scale(
+                            valueRange.start, valueRange.endInclusive, value, 0f, maxWidth
+                        ),
+                        y = 0f
+                    )
+                )
+            }
+            var labelWidth by remember { mutableStateOf(0) }
+
+            if (labelPosition == LabelPosition.Top) {
+                Box(Modifier
+                    .offset {
+                        IntOffset(labelOffset.x.toInt() - labelWidth / 2, yOffsetInt)
+                    }
+                    .onSizeChanged {
+                        labelWidth = it.width
+                    }
+                ) {
+                    label()
                 }
-                .onSizeChanged {
-                    labelWidth = it.width
+                ColorfulSlider(
+                    modifier = modifier,
+                    value = value,
+                    onValueChange = { value, offset ->
+                        labelOffset = offset
+                        onValueChange(value)
+                    },
+                    enabled = enabled,
+                    valueRange = valueRange,
+                    steps = steps,
+                    onValueChangeFinished = onValueChangeFinished,
+                    trackHeight = trackHeight,
+                    thumbRadius = thumbRadius,
+                    borderStroke = borderStroke,
+                    drawInactiveTrack = drawInactiveTrack,
+                    coerceThumbInTrack = coerceThumbInTrack,
+                    colors = colors
+                )
+            } else {
+                ColorfulSlider(
+                    modifier = modifier,
+                    value = value,
+                    onValueChange = { value, offset ->
+                        labelOffset = offset
+                        onValueChange(value)
+                    },
+                    enabled = enabled,
+                    valueRange = valueRange,
+                    steps = steps,
+                    onValueChangeFinished = onValueChangeFinished,
+                    trackHeight = trackHeight,
+                    thumbRadius = thumbRadius,
+                    borderStroke = borderStroke,
+                    drawInactiveTrack = drawInactiveTrack,
+                    coerceThumbInTrack = coerceThumbInTrack,
+                    colors = colors
+                )
+
+                Box(Modifier
+                    .offset {
+                        IntOffset(labelOffset.x.toInt() - labelWidth / 2, yOffsetInt)
+                    }
+                    .onSizeChanged {
+                        labelWidth = it.width
+                    }
+                ) {
+                    label()
                 }
-            ) {
-                label()
             }
         }
     }
