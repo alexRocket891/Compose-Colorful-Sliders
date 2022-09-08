@@ -3,6 +3,8 @@ package com.smarttoolfactory.slider
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.*
@@ -15,13 +17,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.smarttoolfactory.gesture.pointerMotionEvents
 import kotlin.math.abs
 
 /**
@@ -213,37 +216,41 @@ fun ColorfulSlider(
         val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
         val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
 
-        val dragModifier = Modifier.pointerMotionEvents(
-            onDown = {
-                if (enabled) {
-                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                    onValueChangeState.value.invoke(
-                        scaleToUserValue(offsetInTrack),
-                        Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
-                    )
-                    it.consume()
-                }
-            },
-            onMove = {
-                if (enabled) {
-                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                    onValueChangeState.value.invoke(
-                        scaleToUserValue(offsetInTrack),
-                        Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
-                    )
-                    it.consume()
-                }
+        val dragModifier = Modifier
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { change: PointerInputChange, _: Offset ->
+                        if (enabled) {
+                            rawOffset.value =
+                                if (!isRtl) change.position.x else trackEnd - change.position.x
+                            val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                            onValueChangeState.value.invoke(
+                                scaleToUserValue(offsetInTrack),
+                                Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                            )
+                        }
 
-            },
-            onUp = {
-                if (enabled) {
-                    onValueChangeFinished?.invoke()
-                    it.consume()
+                    },
+                    onDragEnd = {
+                        if (enabled) {
+                            onValueChangeFinished?.invoke()
+                        }
+                    }
+                )
+            }
+            .pointerInput(Unit) {
+                detectTapGestures { position: Offset ->
+                    if (enabled) {
+                        rawOffset.value =
+                            if (!isRtl) position.x else trackEnd - position.x
+                        val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                        onValueChangeState.value.invoke(
+                            scaleToUserValue(offsetInTrack),
+                            Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                        )
+                    }
                 }
             }
-        )
 
         SliderImpl(
             enabled = enabled,

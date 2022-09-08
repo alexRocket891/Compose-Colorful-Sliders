@@ -2,6 +2,8 @@ package com.smarttoolfactory.slider
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -14,12 +16,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
-import com.smarttoolfactory.gesture.pointerMotionEvents
 
 /**
  * Material Slider allows to choose height for track and thumb radius and selection between
@@ -151,7 +154,8 @@ fun ColorfulIconSlider(
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
         val width = constraints.maxWidth.toFloat()
-        val thumbRadiusInPx = (thumbSize.width / 2).toFloat()
+        val thumbHalfWidthPx = (thumbSize.width / 2).toFloat()
+        val thumbHeightPx = thumbSize.height.toFloat()
 
         // Start of the track used for measuring progress,
         // it's line + radius of cap which is half of height of track
@@ -164,11 +168,11 @@ fun ColorfulIconSlider(
         with(LocalDensity.current) {
 
             strokeRadius = trackHeight.toPx() / 2
-            trackStart = thumbRadiusInPx.coerceAtLeast(strokeRadius)
+            trackStart = thumbHalfWidthPx.coerceAtLeast(strokeRadius)
             trackEnd = width - trackStart
         }
 
-        // Sales and interpolates from offset from dragging to user value in valueRange
+        // Scales and interpolates from offset from dragging to user value in valueRange
         fun scaleToUserValue(offset: Float) =
             scale(trackStart, trackEnd, offset, valueRange.start, valueRange.endInclusive)
 
@@ -189,37 +193,41 @@ fun ColorfulIconSlider(
         val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
         val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
 
-        val dragModifier = Modifier.pointerMotionEvents(
-            onDown = {
-                if (enabled) {
-                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                    onValueChangeState.value.invoke(
-                        scaleToUserValue(offsetInTrack),
-                        Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
-                    )
-                    it.consume()
-                }
-            },
-            onMove = {
-                if (enabled) {
-                    rawOffset.value = if (!isRtl) it.position.x else trackEnd - it.position.x
-                    val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
-                    onValueChangeState.value.invoke(
-                        scaleToUserValue(offsetInTrack),
-                        Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
-                    )
-                    it.consume()
-                }
+        val dragModifier = Modifier
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { change: PointerInputChange, _: Offset ->
+                        if (enabled) {
+                            rawOffset.value =
+                                if (!isRtl) change.position.x else trackEnd - change.position.x
+                            val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                            onValueChangeState.value.invoke(
+                                scaleToUserValue(offsetInTrack),
+                                Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                            )
+                        }
 
-            },
-            onUp = {
-                if (enabled) {
-                    onValueChangeFinished?.invoke()
-                    it.consume()
+                    },
+                    onDragEnd = {
+                        if (enabled) {
+                            onValueChangeFinished?.invoke()
+                        }
+                    }
+                )
+            }
+            .pointerInput(Unit) {
+                detectTapGestures { position: Offset ->
+                    if (enabled) {
+                        rawOffset.value =
+                            if (!isRtl) position.x else trackEnd - position.x
+                        val offsetInTrack = rawOffset.value.coerceIn(trackStart, trackEnd)
+                        onValueChangeState.value.invoke(
+                            scaleToUserValue(offsetInTrack),
+                            Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
+                        )
+                    }
                 }
             }
-        )
 
         IconSliderImpl(
             enabled = enabled,
@@ -229,7 +237,8 @@ fun ColorfulIconSlider(
             tickFractions = tickFractions,
             colors = colors,
             trackHeight = trackHeight,
-            thumbRadius = thumbRadiusInPx,
+            thumbRadius = thumbHalfWidthPx,
+            thumbHeight = thumbHeightPx,
             thumb = thumb,
             coerceThumbInTrack = coerceThumbInTrack,
             drawInactiveTrack = drawInactiveTrack,
@@ -250,22 +259,23 @@ private fun IconSliderImpl(
     colors: MaterialSliderColors,
     trackHeight: Dp,
     thumbRadius: Float,
+    thumbHeight: Float,
     thumb: @Composable () -> Unit,
     coerceThumbInTrack: Boolean,
     drawInactiveTrack: Boolean,
     borderStroke: BorderStroke? = null,
-    modifier: Modifier,
+    modifier: Modifier
 ) {
 
     val trackStrokeWidth: Float
 
     var borderWidth = 0f
     val borderBrush: Brush? = borderStroke?.brush
-    val thumbSize: Dp
+    val thumbHeightDp: Dp
 
     with(LocalDensity.current) {
         trackStrokeWidth = trackHeight.toPx()
-        thumbSize = (2 * thumbRadius).toDp()
+        thumbHeightDp = (2 * thumbRadius.coerceAtLeast(thumbHeight)).toDp()
 
         if (borderStroke != null) {
             borderWidth = borderStroke.width.toPx()
@@ -276,7 +286,7 @@ private fun IconSliderImpl(
         // Constraint max height of Slider to max of thumb or track or minimum touch 48.dp
         modifier.heightIn(
             max = trackHeight
-                .coerceAtLeast(thumbSize)
+                .coerceAtLeast(thumbHeightDp)
                 .coerceAtLeast(TrackHeight)
         ),
         contentAlignment = Alignment.CenterStart
