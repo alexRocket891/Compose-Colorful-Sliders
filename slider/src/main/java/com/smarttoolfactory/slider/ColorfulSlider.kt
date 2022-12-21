@@ -248,6 +248,7 @@ fun ColorfulSlider(
                             scaleToUserValue(offsetInTrack),
                             Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
                         )
+                        onValueChangeFinished?.invoke()
                     }
                 }
             }
