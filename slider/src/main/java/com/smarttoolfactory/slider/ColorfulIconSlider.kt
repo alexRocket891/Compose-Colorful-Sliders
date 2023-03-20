@@ -226,6 +226,7 @@ fun ColorfulIconSlider(
                             scaleToUserValue(offsetInTrack),
                             Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
                         )
+                        onValueChangeFinished?.invoke()
                     }
                 }
             }
