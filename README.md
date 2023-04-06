@@ -241,7 +241,6 @@ ColorfulIconSlider(
         modifier = Modifier.size(40.dp)
     )
 }
-}
 ```
 
 ## Gradle Setup
