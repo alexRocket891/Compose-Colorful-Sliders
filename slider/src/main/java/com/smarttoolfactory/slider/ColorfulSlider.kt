@@ -214,6 +214,13 @@ fun ColorfulSlider(
             value
         )
 
+        LaunchedEffect(valueRange) {
+            onValueChangeState.value(
+                value,
+                Offset(x = rawOffset.value.coerceIn(trackStart, trackEnd), y = strokeRadius)
+            )
+        }
+
         val coerced = value.coerceIn(valueRange.start, valueRange.endInclusive)
         val fraction = calculateFraction(valueRange.start, valueRange.endInclusive, coerced)
 
