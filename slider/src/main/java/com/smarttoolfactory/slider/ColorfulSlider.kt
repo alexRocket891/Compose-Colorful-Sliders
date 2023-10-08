@@ -163,6 +163,7 @@ fun ColorfulSlider(
 
     require(steps >= 0) { "steps should be >= 0" }
     val onValueChangeState = rememberUpdatedState(onValueChange)
+    val onValueChangeFinishedState by rememberUpdatedState(onValueChangeFinished)
     val tickFractions = remember(steps) {
         stepsToTickFractions(steps)
     }
@@ -241,7 +242,7 @@ fun ColorfulSlider(
                     },
                     onDragEnd = {
                         if (enabled) {
-                            onValueChangeFinished?.invoke()
+                            onValueChangeFinishedState?.invoke()
                         }
                     }
                 )
@@ -256,7 +257,7 @@ fun ColorfulSlider(
                             scaleToUserValue(offsetInTrack),
                             Offset(rawOffset.value.coerceIn(trackStart, trackEnd), strokeRadius)
                         )
-                        onValueChangeFinished?.invoke()
+                        onValueChangeFinishedState?.invoke()
                     }
                 }
             }
