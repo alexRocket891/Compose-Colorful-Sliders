@@ -415,13 +415,15 @@ private fun Track(
         )
 
         // InActive Track
-        drawLine(
-            brush = inactiveTrackColor,
-            start = sliderStart,
-            end = sliderEnd,
-            strokeWidth = trackHeight,
-            cap = StrokeCap.Round
-        )
+        if (drawInactiveTrack) {
+            drawLine(
+                brush = inactiveTrackColor,
+                start = sliderStart,
+                end = sliderEnd,
+                strokeWidth = trackHeight,
+                cap = StrokeCap.Round
+            )
+        }
 
         // Active Track
         drawLine(
