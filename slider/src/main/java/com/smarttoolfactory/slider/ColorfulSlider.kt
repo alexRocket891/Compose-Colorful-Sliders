@@ -115,7 +115,8 @@ fun ColorfulSlider(
     colors: MaterialSliderColors = MaterialSliderDefaults.defaultColors(),
     borderStroke: BorderStroke? = null,
     drawInactiveTrack: Boolean = true,
-    coerceThumbInTrack: Boolean = false
+    coerceThumbInTrack: Boolean = false,
+    cap: StrokeCap = StrokeCap.Round,
 ) {
     ColorfulSlider(
         modifier = modifier,
@@ -132,7 +133,8 @@ fun ColorfulSlider(
         colors = colors,
         borderStroke = borderStroke,
         drawInactiveTrack = drawInactiveTrack,
-        coerceThumbInTrack = coerceThumbInTrack
+        coerceThumbInTrack = coerceThumbInTrack,
+        cap = cap,
     )
 }
 
@@ -192,7 +194,8 @@ fun ColorfulSlider(
     borderStroke: BorderStroke? = null,
     drawInactiveTrack: Boolean = true,
     coerceThumbInTrack: Boolean = false,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    cap: StrokeCap = StrokeCap.Round,
 ) {
 
     require(steps >= 0) { "steps should be >= 0" }
@@ -322,7 +325,8 @@ fun ColorfulSlider(
             coerceThumbInTrack = coerceThumbInTrack,
             drawInactiveTrack = drawInactiveTrack,
             borderStroke = borderStroke,
-            modifier = press.then(drag)
+            modifier = press.then(drag),
+            cap = cap,
         )
     }
 }
@@ -341,6 +345,7 @@ private fun SliderImpl(
     drawInactiveTrack: Boolean,
     borderStroke: BorderStroke? = null,
     modifier: Modifier,
+    cap: StrokeCap = StrokeCap.Round,
 ) {
 
     val trackStrokeWidth: Float
@@ -383,7 +388,8 @@ private fun SliderImpl(
             enabled = enabled,
             borderBrush = borderBrush,
             borderWidth = borderWidth,
-            drawInactiveTrack = drawInactiveTrack
+            drawInactiveTrack = drawInactiveTrack,
+            cap = cap,
         )
 
         Thumb(
@@ -418,6 +424,7 @@ private fun Track(
     borderBrush: Brush?,
     borderWidth: Float,
     drawInactiveTrack: Boolean,
+    cap: StrokeCap = StrokeCap.Round,
 ) {
 
     val debug = false
@@ -469,7 +476,7 @@ private fun Track(
                 start = sliderStart,
                 end = sliderEnd,
                 strokeWidth = trackHeight,
-                cap = StrokeCap.Round
+                cap = cap
             )
         }
 
@@ -479,7 +486,7 @@ private fun Track(
             start = sliderStart,
             end = if (drawInactiveTrack) sliderValue else sliderEnd,
             strokeWidth = trackHeight,
-            cap = StrokeCap.Round
+            cap = cap
         )
 
         if (debug) {
@@ -512,7 +519,7 @@ private fun Track(
                         brush = if (outsideFraction) inactiveTickColor
                         else activeTickColor,
                         strokeWidth = strokeRadius.coerceAtMost(thumbRadius / 2),
-                        cap = StrokeCap.Round
+                        cap = cap
                     )
                 }
         }
